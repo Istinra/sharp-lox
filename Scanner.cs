@@ -42,7 +42,7 @@ public class Scanner
             _start = _current;
             ScanToken();
         }
-
+        AddToken(TokenType.EOF);
         return _tokens;
     }
 
