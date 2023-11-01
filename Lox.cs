@@ -17,6 +17,8 @@ public class Lox
         List<Token> tokens = scanner.ScanTokens();
         Parser parser = new Parser(tokens);
         IExpr? expr = parser.Parse();
+        Interpreter interpreter = new Interpreter();
+        Console.WriteLine(interpreter.VisitBinaryExpr((BinaryExpr)expr));
         _hadError = false;
     }
     

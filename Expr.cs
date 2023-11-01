@@ -21,7 +21,7 @@ public record GroupingExpr(IExpr Expression) : IExpr
      } 
 }
 
-public record LiteralExpr(object? Value) : IExpr
+public record LiteralExpr(object Value) : IExpr
 {
      public TR Accept<TR>(IVisitor<TR> visitor)
      {
