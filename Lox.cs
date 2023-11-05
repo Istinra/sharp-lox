@@ -20,9 +20,8 @@ public class Lox
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.ScanTokens();
         Parser parser = new Parser(tokens);
-        IExpr? expr = parser.Parse();
-        
-        if (expr != null) Interpreter.Interpret(expr);
+        List<IStmt> stmts = parser.Parse();
+        Interpreter.Interpret(stmts);
         _hadError = false;
     }
 

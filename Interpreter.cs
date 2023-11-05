@@ -1,11 +1,14 @@
 ﻿namespace Lox;
 
-public class Interpreter : IVisitor<object>
+public class Interpreter : IExprVisitor<object>, IStmtVisitor
 {
-    public void Interpret(IExpr expression) { 
-        try {
-            object value = Evaluate(expression);
-            Console.WriteLine(value);
+    public void Interpret(List<IStmt> statements) { 
+        try
+        {
+            foreach (IStmt statement in statements)
+            {
+                statement.Accept(this);
+            }
         } catch (RuntimeError error) {
             Lox.RuntimeError(error);
         }
@@ -101,6 +104,18 @@ public class Interpreter : IVisitor<object>
     {
         if (operand.Any(o => o is not double))
             throw new RuntimeError(op, "Operand must be a number.");
+    }
+
+    public void VisitExprStmt(ExprStmt exprStmt)
+    {
+        object result = Evaluate(exprStmt.Expression);
+        Console.WriteLine(result?.ToString());
+    }
+
+    public void VisitPrintStmt(PrintStmt exprStmt)
+    {
+        object result = Evaluate(exprStmt.Expression);
+        Console.WriteLine(result?.ToString());
     }
 }
 

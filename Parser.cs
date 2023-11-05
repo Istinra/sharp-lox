@@ -10,14 +10,41 @@ public class Parser
         _tokens = tokens;
     }
     
-    public IExpr? Parse() {
-        try {
-            return Expression();
-        } catch (ParseError error) {
-            return null;
+    public List<IStmt> Parse()
+    {
+        List<IStmt> stmts = new List<IStmt>();
+        while (!IsAtEnd())
+        {
+            stmts.Add(Statement());
         }
+
+        return stmts;
+        // try {
+        //     return Expression();
+        // } catch (ParseError error) {
+        //     return null;
+        // }
     }
     
+    private IStmt Statement() {
+        if (Match(TokenType.PRINT)) return PrintStatement();
+        return ExpressionStatement();
+    }
+
+    private IStmt PrintStatement()
+    {
+        IExpr expression = Expression();
+        Consume(TokenType.SEMICOLON, "Expected ; after print value");
+        return new PrintStmt(expression);
+    }
+
+    private IStmt ExpressionStatement()
+    {
+        ExprStmt expressionStatement = new ExprStmt(Expression());
+        Consume(TokenType.SEMICOLON, "Expected ; after value");
+        return expressionStatement;
+    }
+
     private IExpr Expression() {
         return Equality();
     }

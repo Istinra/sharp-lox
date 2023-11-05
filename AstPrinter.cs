@@ -2,7 +2,7 @@
 
 namespace Lox;
 
-public class AstPrinter : IVisitor<string>
+public class AstPrinter : IExprVisitor<string>
 {
     public string VisitBinaryExpr(BinaryExpr binaryExpr)
     {
