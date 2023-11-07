@@ -15,7 +15,11 @@ public class Parser
         List<IStmt> stmts = new List<IStmt>();
         while (!IsAtEnd())
         {
-            stmts.Add(Statement());
+            IStmt? declaration = Declaration();
+            if (declaration != null)
+            {
+                stmts.Add(declaration);
+            }
         }
 
         return stmts;
@@ -25,9 +29,34 @@ public class Parser
         //     return null;
         // }
     }
-    
+
+    private IStmt? Declaration()
+    {
+        try
+        {
+            if (Match(TokenType.VAR))
+                return VarDeclaration();
+            return Statement();
+        }
+        catch (ParseError)
+        {
+            Synchronize();
+            return null;
+        }
+    }
+
+    private IStmt VarDeclaration()
+    {
+        Token id = Consume(TokenType.IDENTIFIER, "Expect variable name.");
+        bool init = Match(TokenType.EQUAL);
+        VarStatement varStatement = new VarStatement(id, init ? Expression() : null);
+        Consume(TokenType.SEMICOLON, "Expected ; after value");
+        return varStatement;
+    }
+
     private IStmt Statement() {
-        if (Match(TokenType.PRINT)) return PrintStatement();
+        if (Match(TokenType.PRINT)) 
+            return PrintStatement();
         return ExpressionStatement();
     }
 
@@ -114,13 +143,15 @@ public class Parser
         }
         if (Match(TokenType.NIL))
         {
-            return new LiteralExpr(null);
+            return new LiteralExpr(null!);
         }
         if (Match(TokenType.STRING, TokenType.NUMBER))
         {
-            return new LiteralExpr(Previous().Literal);
+            return new LiteralExpr(Previous().Literal!);
         }
-
+        if (Match(TokenType.IDENTIFIER)) {
+            return new VariableExpr(Previous());
+        }
         if (Match(TokenType.LEFT_PAREN))
         {
             IExpr expr = Expression();

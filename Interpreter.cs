@@ -2,6 +2,8 @@
 
 public class Interpreter : IExprVisitor<object>, IStmtVisitor
 {
+    private readonly Environment _environment = new Environment();
+    
     public void Interpret(List<IStmt> statements) { 
         try
         {
@@ -116,6 +118,16 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
     {
         object result = Evaluate(exprStmt.Expression);
         Console.WriteLine(result?.ToString());
+    }
+
+    public void VisitVarStatement(VarStatement exprStmt)
+    {
+        _environment.Define(exprStmt.Name.Lexeme, exprStmt.Initializer != null ? Evaluate(exprStmt.Initializer) : null);
+    }
+
+    public object VisitVariableExpr(VariableExpr variableExpr)
+    {
+        return _environment.Get(variableExpr.Name)!;
     }
 }
 
