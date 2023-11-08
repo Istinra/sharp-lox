@@ -5,6 +5,14 @@ public interface IExpr
      TR Accept<TR>(IExprVisitor<TR> exprVisitor);
 }
 
+public record AssignExpr(Token Name, IExpr Value) : IExpr
+{
+     public TR Accept<TR>(IExprVisitor<TR> exprVisitor)
+     {
+          return exprVisitor.VisitAssignExpr(this);
+     }
+}
+
 public record BinaryExpr(IExpr Left, Token Op, IExpr Right) : IExpr
 {
      public TR Accept<TR>(IExprVisitor<TR> exprVisitor)

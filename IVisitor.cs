@@ -2,6 +2,7 @@
 
 public interface IExprVisitor<TR>
 {
+    TR VisitAssignExpr(AssignExpr assignExpr);
     TR VisitBinaryExpr(BinaryExpr binaryExpr);
     TR VisitGroupingExpr(GroupingExpr groupingExpr);
     TR VisitLiteralExpr(LiteralExpr literalExpr);

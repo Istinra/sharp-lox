@@ -9,7 +9,7 @@ public class Parser
     {
         _tokens = tokens;
     }
-    
+
     public List<IStmt> Parse()
     {
         List<IStmt> stmts = new List<IStmt>();
@@ -54,8 +54,9 @@ public class Parser
         return varStatement;
     }
 
-    private IStmt Statement() {
-        if (Match(TokenType.PRINT)) 
+    private IStmt Statement()
+    {
+        if (Match(TokenType.PRINT))
             return PrintStatement();
         return ExpressionStatement();
     }
@@ -74,8 +75,28 @@ public class Parser
         return expressionStatement;
     }
 
-    private IExpr Expression() {
-        return Equality();
+    private IExpr Expression()
+    {
+        return Assignment();
+    }
+
+    private IExpr Assignment()
+    {
+        IExpr expr = Equality();
+
+        if (Match(TokenType.EQUAL))
+        {
+            Token eq = Previous();
+            IExpr assignment = Assignment();
+            if (expr is VariableExpr)
+            {
+                return new AssignExpr(eq, expr);
+            }
+
+            Error(eq, "Invalid assignment target.");
+        }
+
+        return expr;
     }
 
     private IExpr Equality()
@@ -87,9 +108,10 @@ public class Parser
             IExpr right = Comparison();
             expr = new BinaryExpr(expr, op, right);
         }
+
         return expr;
     }
-    
+
     private IExpr Comparison()
     {
         IExpr expr = Term();
@@ -99,9 +121,10 @@ public class Parser
             IExpr right = Term();
             expr = new BinaryExpr(expr, op, right);
         }
+
         return expr;
     }
-    
+
     private IExpr Term()
     {
         IExpr expr = Factor();
@@ -111,9 +134,10 @@ public class Parser
             IExpr right = Factor();
             expr = new BinaryExpr(expr, op, right);
         }
+
         return expr;
     }
-    
+
     private IExpr Factor()
     {
         IExpr expr = Unary();
@@ -123,52 +147,62 @@ public class Parser
             IExpr right = Unary();
             expr = new BinaryExpr(expr, op, right);
         }
+
         return expr;
     }
-    
+
     private IExpr Unary()
     {
         return Match(TokenType.BANG, TokenType.MINUS) ? new UnaryExpr(Previous(), Unary()) : Primary();
     }
-    
+
     private IExpr Primary()
     {
         if (Match(TokenType.TRUE))
         {
             return new LiteralExpr(true);
         }
+
         if (Match(TokenType.FALSE))
         {
             return new LiteralExpr(false);
         }
+
         if (Match(TokenType.NIL))
         {
             return new LiteralExpr(null!);
         }
+
         if (Match(TokenType.STRING, TokenType.NUMBER))
         {
             return new LiteralExpr(Previous().Literal!);
         }
-        if (Match(TokenType.IDENTIFIER)) {
+
+        if (Match(TokenType.IDENTIFIER))
+        {
             return new VariableExpr(Previous());
         }
+
         if (Match(TokenType.LEFT_PAREN))
         {
             IExpr expr = Expression();
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new GroupingExpr(expr);
         }
-        
+
         throw Error(Peek(), "Expect expression.");
     }
-    
-    private void Synchronize() {
+
+    private void Synchronize()
+    {
         Advance();
 
-        while (!IsAtEnd()) {
+        while (!IsAtEnd())
+        {
             if (Previous().Type == TokenType.SEMICOLON) return;
 
-            switch (Peek().Type) {
+            switch (Peek().Type)
+            {
                 case TokenType.CLASS:
                 case TokenType.FUN:
                 case TokenType.VAR:
@@ -183,46 +217,55 @@ public class Parser
             Advance();
         }
     }
-    
+
     private bool Match(params TokenType[] types)
     {
         if (!types.Any(Check)) return false;
         Advance();
         return true;
     }
-    
-    private bool Check(TokenType type) {
+
+    private bool Check(TokenType type)
+    {
         if (IsAtEnd()) return false;
         return Peek().Type == type;
     }
-    
-    private Token Advance() {
+
+    private Token Advance()
+    {
         if (!IsAtEnd()) _current++;
         return Previous();
     }
-    
-    private bool IsAtEnd() {
+
+    private bool IsAtEnd()
+    {
         return Peek().Type == TokenType.EOF;
     }
 
-    private Token Peek() {
+    private Token Peek()
+    {
         return _tokens[_current];
     }
 
-    private Token Previous() {
+    private Token Previous()
+    {
         return _tokens[_current - 1];
     }
-    
-    private Token Consume(TokenType type, string message) {
+
+    private Token Consume(TokenType type, string message)
+    {
         if (Check(type)) return Advance();
 
         throw Error(Peek(), message);
     }
-    
-    private ParseError Error(Token token, string message) {
+
+    private ParseError Error(Token token, string message)
+    {
         Lox.Error(token, message);
         return new ParseError();
     }
-    
-    private class ParseError : SystemException {} 
+
+    private class ParseError : SystemException
+    {
+    }
 }

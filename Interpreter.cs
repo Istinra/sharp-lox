@@ -129,6 +129,13 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
     {
         return _environment.Get(variableExpr.Name)!;
     }
+
+    public object VisitAssignExpr(AssignExpr assignExpr)
+    {
+        object value = Evaluate(assignExpr.Value);
+        _environment.Assign(assignExpr.Name, value);
+        return value;
+    }
 }
 
 public class RuntimeError : SystemException
