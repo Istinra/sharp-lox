@@ -2,14 +2,14 @@
 
 public class Interpreter : IExprVisitor<object>, IStmtVisitor
 {
-    private readonly Environment _environment = new Environment();
+    private Environment _environment = new Environment();
     
     public void Interpret(List<IStmt> statements) { 
         try
         {
             foreach (IStmt statement in statements)
             {
-                statement.Accept(this);
+                Execute(statement);
             }
         } catch (RuntimeError error) {
             Lox.RuntimeError(error);
@@ -112,6 +112,31 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
     {
         object result = Evaluate(exprStmt.Expression);
         Console.WriteLine(result?.ToString());
+    }
+
+    public void VisitBlockStatement(BlockStmt exprStmt)
+    {
+        ExecuteBlock(exprStmt.Statements, new Environment(_environment));
+    }
+
+    private void ExecuteBlock(List<IStmt> statements, Environment environment)
+    {
+        Environment previous = _environment;
+        try {
+            _environment = environment;
+
+            foreach (IStmt statement in statements)
+            {
+                Execute(statement);
+            }
+            
+        } finally {
+            _environment = previous;
+        }
+    }
+    
+    private void Execute(IStmt stmt) {
+        stmt.Accept(this);
     }
 
     public void VisitPrintStmt(PrintStmt exprStmt)

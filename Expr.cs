@@ -81,3 +81,11 @@ public record VarStatement(Token Name, IExpr? Initializer) : IStmt
           visitor.VisitVarStatement(this);
      }
 }
+
+public record BlockStmt(List<IStmt> Statements) : IStmt
+{
+     public void Accept(IStmtVisitor visitor)
+     {
+          visitor.VisitBlockStatement(this);
+     }
+}

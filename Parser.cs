@@ -57,15 +57,31 @@ public class Parser
     private IStmt Statement()
     {
         if (Match(TokenType.PRINT))
-            return PrintStatement();
+            return Print();
+        if (Match(TokenType.LEFT_BRACE))
+            return new BlockStmt(Block());
         return ExpressionStatement();
     }
 
-    private IStmt PrintStatement()
+    private IStmt Print()
     {
         IExpr expression = Expression();
         Consume(TokenType.SEMICOLON, "Expected ; after print value");
         return new PrintStmt(expression);
+    }
+
+    private List<IStmt> Block()
+    {
+        List<IStmt> stmts = new();
+        while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
+        {
+            IStmt? declaration = Declaration();
+            if (declaration != null)
+                stmts.Add(declaration);
+        }
+
+        Consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+        return stmts;
     }
 
     private IStmt ExpressionStatement()
