@@ -147,7 +147,8 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
 
     public void VisitVarStatement(VarStatement exprStmt)
     {
-        _environment.Define(exprStmt.Name.Lexeme, exprStmt.Initializer != null ? Evaluate(exprStmt.Initializer) : null);
+        bool initialised = exprStmt.Initializer != null;
+        _environment.Define(exprStmt.Name.Lexeme, initialised ? Evaluate(exprStmt.Initializer!) : null, initialised);
     }
 
     public object VisitVariableExpr(VariableExpr variableExpr)

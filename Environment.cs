@@ -2,9 +2,10 @@
 
 public class Environment
 {
-    private readonly IDictionary<string, object?> _values = new Dictionary<string, object?>();
+    private readonly IDictionary<string, ValueWrapper> _values = new Dictionary<string, ValueWrapper>();
 
     private readonly Environment? _enclosing;
+    
 
     public Environment()
     {
@@ -16,15 +17,19 @@ public class Environment
         _enclosing = enclosing;
     }
 
-    public void Define(string name, object? value)
+    public void Define(string name, object? value, bool initialised)
     {
-        _values[name] = value;
+        _values[name] = new ValueWrapper(initialised, value);
     }
 
     public object? Get(Token name)
     {
-        if (_values.TryGetValue(name.Lexeme, out var value))
+        if (_values.TryGetValue(name.Lexeme, out ValueWrapper value))
+        {
+            if (!value.Initialised) 
+                throw new RuntimeError(name, "Uninitialised Variable '" + name.Lexeme + "'.");
             return value;
+        }
         if (_enclosing != null)
             return _enclosing.Get(name);
 
@@ -33,9 +38,10 @@ public class Environment
 
     public void Assign(Token name, object? value)
     {
-        if (_values.ContainsKey(name.Lexeme))
+        if (_values.TryGetValue(name.Lexeme, out ValueWrapper valueWrapper))
         {
-            _values[name.Lexeme] = value;
+            valueWrapper.Initialised = true;
+            valueWrapper.Value = value;
             return;
         }
 
@@ -47,4 +53,16 @@ public class Environment
 
         throw new RuntimeError(name, "Undefined variable '" + name.Lexeme + "'.");
     }
+}
+
+internal struct ValueWrapper
+{
+    public ValueWrapper(bool initialised, object? value)
+    {
+        Initialised = initialised;
+        Value = value;
+    }
+
+    public bool Initialised { get; set; }
+    public object? Value { get; set; }
 }

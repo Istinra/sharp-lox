@@ -23,11 +23,6 @@ public class Parser
         }
 
         return stmts;
-        // try {
-        //     return Expression();
-        // } catch (ParseError error) {
-        //     return null;
-        // }
     }
 
     private IStmt? Declaration()
