@@ -66,6 +66,14 @@ public record ExprStmt(IExpr Expression) : IStmt
      }
 }
 
+public record IfStmt(IExpr Condition, IStmt ThenBranch, IStmt? ElseBranch) : IStmt
+{
+     public void Accept(IStmtVisitor visitor)
+     {
+          visitor.VisitIfStmt(this);
+     }
+}
+
 public record PrintStmt(IExpr Expression) : IStmt
 {
      public void Accept(IStmtVisitor visitor)

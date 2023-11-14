@@ -16,4 +16,5 @@ public interface IStmtVisitor
     void VisitPrintStmt(PrintStmt exprStmt);
     void VisitVarStatement(VarStatement exprStmt);
     void VisitBlockStatement(BlockStmt exprStmt);
+    void VisitIfStmt(IfStmt ifStmt);
 }

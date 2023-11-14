@@ -51,14 +51,31 @@ public class Parser
 
     private IStmt Statement()
     {
+        if (Match(TokenType.IF))
+            return IfStatement();
         if (Match(TokenType.PRINT))
-            return Print();
+            return PrintStatement();
         if (Match(TokenType.LEFT_BRACE))
             return new BlockStmt(Block());
         return ExpressionStatement();
     }
 
-    private IStmt Print()
+    private IStmt IfStatement()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        IExpr condition = Expression();
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+        IStmt thenBranch = Statement();
+        IStmt? elseBranch = null;
+        if (Match(TokenType.ELSE))
+        {
+            elseBranch = Statement();
+        }
+
+        return new IfStmt(condition, thenBranch, elseBranch);
+    }
+
+    private IStmt PrintStatement()
     {
         IExpr expression = Expression();
         Consume(TokenType.SEMICOLON, "Expected ; after print value");

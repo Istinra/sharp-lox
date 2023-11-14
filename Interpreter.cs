@@ -139,6 +139,18 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
         stmt.Accept(this);
     }
 
+    public void VisitIfStmt(IfStmt ifStmt)
+    {
+        if (IsTruthy(ifStmt.Condition))
+        {
+            ifStmt.ThenBranch.Accept(this);
+        }
+        else
+        {
+            ifStmt.ElseBranch?.Accept(this);
+        }
+    }
+
     public void VisitPrintStmt(PrintStmt exprStmt)
     {
         object result = Evaluate(exprStmt.Expression);
