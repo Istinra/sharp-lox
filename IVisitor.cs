@@ -8,6 +8,7 @@ public interface IExprVisitor<TR>
     TR VisitLiteralExpr(LiteralExpr literalExpr);
     TR VisitUnaryExpr(UnaryExpr unaryExpr);
     TR VisitVariableExpr(VariableExpr variableExpr);
+    TR VisitLogicalExpr(LogicalExpr logicalExpr);
 }
 
 public interface IStmtVisitor
@@ -17,4 +18,5 @@ public interface IStmtVisitor
     void VisitVarStatement(VarStatement exprStmt);
     void VisitBlockStatement(BlockStmt exprStmt);
     void VisitIfStmt(IfStmt ifStmt);
+    void VisitWhileStmt(WhileStmt whileStmt);
 }

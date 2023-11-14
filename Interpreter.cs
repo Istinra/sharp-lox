@@ -143,12 +143,26 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
     {
         if (IsTruthy(ifStmt.Condition))
         {
-            ifStmt.ThenBranch.Accept(this);
+            Execute(ifStmt.ThenBranch);
         }
         else
         {
             ifStmt.ElseBranch?.Accept(this);
         }
+    }
+
+    public object VisitLogicalExpr(LogicalExpr logicalExpr)
+    {
+        object left = Evaluate(logicalExpr.Left);
+
+        if (logicalExpr.Op.Type == TokenType.OR)
+            if (IsTruthy(left))
+                return left;
+        if (logicalExpr.Op.Type == TokenType.AND)
+            if (!IsTruthy(left))
+                return left;
+        
+        return Evaluate(logicalExpr.Right);
     }
 
     public void VisitPrintStmt(PrintStmt exprStmt)
@@ -161,6 +175,14 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
     {
         bool initialised = exprStmt.Initializer != null;
         _environment.Define(exprStmt.Name.Lexeme, initialised ? Evaluate(exprStmt.Initializer!) : null, initialised);
+    }
+
+    public void VisitWhileStmt(WhileStmt whileStmt)
+    {
+        while (IsTruthy(whileStmt.Condition))
+        {
+            Execute(whileStmt.Body);
+        }
     }
 
     public object VisitVariableExpr(VariableExpr variableExpr)

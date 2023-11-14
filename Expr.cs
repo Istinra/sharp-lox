@@ -21,6 +21,14 @@ public record BinaryExpr(IExpr Left, Token Op, IExpr Right) : IExpr
      }
 }
 
+public record LogicalExpr(IExpr Left, Token Op, IExpr Right) : IExpr
+{
+     public TR Accept<TR>(IExprVisitor<TR> exprVisitor)
+     {
+          return exprVisitor.VisitLogicalExpr(this);
+     }
+}
+
 public record GroupingExpr(IExpr Expression) : IExpr
 {
      public TR Accept<TR>(IExprVisitor<TR> exprVisitor)
@@ -71,6 +79,14 @@ public record IfStmt(IExpr Condition, IStmt ThenBranch, IStmt? ElseBranch) : ISt
      public void Accept(IStmtVisitor visitor)
      {
           visitor.VisitIfStmt(this);
+     }
+}
+
+public record WhileStmt(IExpr Condition, IStmt Body) : IStmt
+{
+     public void Accept(IStmtVisitor visitor)
+     {
+          visitor.VisitWhileStmt(this);
      }
 }
 

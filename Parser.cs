@@ -55,6 +55,8 @@ public class Parser
             return IfStatement();
         if (Match(TokenType.PRINT))
             return PrintStatement();
+        if (Match(TokenType.WHILE))
+            return WhileStatement();
         if (Match(TokenType.LEFT_BRACE))
             return new BlockStmt(Block());
         return ExpressionStatement();
@@ -80,6 +82,14 @@ public class Parser
         IExpr expression = Expression();
         Consume(TokenType.SEMICOLON, "Expected ; after print value");
         return new PrintStmt(expression);
+    }
+
+    private IStmt WhileStatement()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        IExpr condition = Expression();
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+        return new WhileStmt(condition, Statement());
     }
 
     private List<IStmt> Block()
@@ -110,7 +120,7 @@ public class Parser
 
     private IExpr Assignment()
     {
-        IExpr expr = Equality();
+        IExpr expr = Or();
 
         if (Match(TokenType.EQUAL))
         {
@@ -122,6 +132,32 @@ public class Parser
             }
 
             Error(eq, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    private IExpr Or()
+    {
+        IExpr expr = And();
+        
+        while (Match(TokenType.OR)) {
+            Token op = Previous();
+            IExpr right = And();
+            expr = new LogicalExpr(expr, op, right);
+        }
+
+        return expr;
+    }
+
+    private IExpr And()
+    {
+        IExpr expr = Equality();
+        
+        while (Match(TokenType.AND)) {
+            Token op = Previous();
+            IExpr right = Equality();
+            expr = new LogicalExpr(expr, op, right);
         }
 
         return expr;
