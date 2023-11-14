@@ -28,7 +28,7 @@ public class Environment
         {
             if (!value.Initialised) 
                 throw new RuntimeError(name, "Uninitialised Variable '" + name.Lexeme + "'.");
-            return value;
+            return value.Value;
         }
         if (_enclosing != null)
             return _enclosing.Get(name);
@@ -42,6 +42,7 @@ public class Environment
         {
             valueWrapper.Initialised = true;
             valueWrapper.Value = value;
+            _values[name.Lexeme] = valueWrapper;
             return;
         }
 

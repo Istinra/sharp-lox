@@ -51,6 +51,8 @@ public class Parser
 
     private IStmt Statement()
     {
+        if (Match(TokenType.FOR))
+            return ForStatement();
         if (Match(TokenType.IF))
             return IfStatement();
         if (Match(TokenType.PRINT))
@@ -60,6 +62,44 @@ public class Parser
         if (Match(TokenType.LEFT_BRACE))
             return new BlockStmt(Block());
         return ExpressionStatement();
+    }
+
+    private IStmt ForStatement()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        IStmt? initializer;
+        if (Match(TokenType.SEMICOLON)) {
+            initializer = null;
+        } else if (Match(TokenType.VAR)) {
+            initializer = VarDeclaration();
+        } else {
+            initializer = ExpressionStatement();
+        }
+        
+        IExpr? condition = null;
+        if (!Check(TokenType.SEMICOLON)) {
+            condition = Expression();
+        }
+        Consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+        
+        IExpr? increment = null;
+        if (!Check(TokenType.RIGHT_PAREN)) {
+            increment = Expression();
+        }
+        
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+
+        IStmt body = Statement();
+
+        if (increment != null)
+            body = new BlockStmt(new List<IStmt>() { body, new ExprStmt(increment) });
+        if (condition == null)
+            condition = new LiteralExpr(true);
+        body = new WhileStmt(condition, body);
+        if (initializer != null)
+            body = new BlockStmt(new List<IStmt>() { initializer, body });
+        
+        return body;
     }
 
     private IStmt IfStatement()
@@ -126,9 +166,9 @@ public class Parser
         {
             Token eq = Previous();
             IExpr assignment = Assignment();
-            if (expr is VariableExpr)
+            if (expr is VariableExpr variableExpr)
             {
-                return new AssignExpr(eq, expr);
+                return new AssignExpr(variableExpr.Name, assignment);
             }
 
             Error(eq, "Invalid assignment target.");

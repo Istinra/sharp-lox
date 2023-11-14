@@ -110,8 +110,7 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
 
     public void VisitExprStmt(ExprStmt exprStmt)
     {
-        object result = Evaluate(exprStmt.Expression);
-        Console.WriteLine(result?.ToString());
+        Evaluate(exprStmt.Expression);
     }
 
     public void VisitBlockStatement(BlockStmt exprStmt)
@@ -179,7 +178,7 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
 
     public void VisitWhileStmt(WhileStmt whileStmt)
     {
-        while (IsTruthy(whileStmt.Condition))
+        while (IsTruthy(Evaluate(whileStmt.Condition)))
         {
             Execute(whileStmt.Body);
         }
