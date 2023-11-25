@@ -257,7 +257,42 @@ public class Parser
 
     private IExpr Unary()
     {
-        return Match(TokenType.BANG, TokenType.MINUS) ? new UnaryExpr(Previous(), Unary()) : Primary();
+        return Match(TokenType.BANG, TokenType.MINUS) ? new UnaryExpr(Previous(), Unary()) : Call();
+    }
+
+    private IExpr Call()
+    {
+        IExpr expr = Primary();
+
+        for (int i = 0; i < 256; i++)
+        {
+            if (Match(TokenType.LEFT_PAREN))
+            {
+                expr = FinishCall(expr);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return expr;
+    }
+    
+    private IExpr FinishCall(IExpr callee) {
+        List<IExpr> arguments = new();
+        if (!Check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (arguments.Count >= 255) {
+                    Error(Peek(), "Can't have more than 255 arguments.");
+                }
+                arguments.Add(Expression());
+            } while (Match(TokenType.COMMA));
+        }
+
+        Token paren = Consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+
+        return new CallExpr(callee, paren, arguments);
     }
 
     private IExpr Primary()

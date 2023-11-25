@@ -21,6 +21,14 @@ public record BinaryExpr(IExpr Left, Token Op, IExpr Right) : IExpr
      }
 }
 
+public record CallExpr(IExpr Callee, Token Paren, List<IExpr> Exprs) : IExpr
+{
+     public TR Accept<TR>(IExprVisitor<TR> exprVisitor)
+     {
+          return exprVisitor.VisitCallExpr(this);
+     }
+}
+
 public record LogicalExpr(IExpr Left, Token Op, IExpr Right) : IExpr
 {
      public TR Accept<TR>(IExprVisitor<TR> exprVisitor)

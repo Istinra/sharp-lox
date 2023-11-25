@@ -57,6 +57,21 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
         throw new RuntimeError(binaryExpr.Op, "Invalid binary operation");
     }
 
+    public object VisitCallExpr(CallExpr callExpr)
+    {
+        object callee = Evaluate(callExpr.Callee);
+        if (callee is not ILoxCallable callable) {
+            throw new RuntimeError(callExpr.Paren, "Can only call functions and classes.");
+        }
+        List<object> args = callExpr.Exprs.Select(Evaluate).ToList();
+        if (args.Count != callable.Arity())
+        {
+            throw new RuntimeError(callExpr.Paren, "Expected " + callable.Arity() + " arguments but got " +
+                                                   args.Count + ".");
+        }
+        return callable.Call(this, args);
+    }
+
     public object VisitGroupingExpr(GroupingExpr groupingExpr)
     {
         return Evaluate(groupingExpr.Expression);
