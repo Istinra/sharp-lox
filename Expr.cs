@@ -82,6 +82,14 @@ public record ExprStmt(IExpr Expression) : IStmt
      }
 }
 
+public record FunctionStmt(Token Name, List<Token> Parameters, List<IStmt> Body) : IStmt
+{
+     public void Accept(IStmtVisitor visitor)
+     {
+          visitor.VisitFunctionStmt(this);
+     }
+}
+
 public record IfStmt(IExpr Condition, IStmt ThenBranch, IStmt? ElseBranch) : IStmt
 {
      public void Accept(IStmtVisitor visitor)

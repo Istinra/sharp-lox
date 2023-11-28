@@ -2,8 +2,15 @@
 
 public class Interpreter : IExprVisitor<object>, IStmtVisitor
 {
-    private Environment _environment = new Environment();
-    
+    public readonly Environment Globals = new Environment();
+    private Environment _environment;
+
+    public Interpreter()
+    {
+        _environment = Globals;
+        Globals.Define("clock", new ClockCallable(), true);
+    }
+
     public void Interpret(List<IStmt> statements) { 
         try
         {
@@ -133,7 +140,7 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
         ExecuteBlock(exprStmt.Statements, new Environment(_environment));
     }
 
-    private void ExecuteBlock(List<IStmt> statements, Environment environment)
+    public void ExecuteBlock(List<IStmt> statements, Environment environment)
     {
         Environment previous = _environment;
         try {
@@ -151,6 +158,12 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
     
     private void Execute(IStmt stmt) {
         stmt.Accept(this);
+    }
+
+    public void VisitFunctionStmt(FunctionStmt functionStmt)
+    {
+        LoxFunction loxFunction = new LoxFunction(functionStmt);
+        _environment.Define(functionStmt.Name.Lexeme, loxFunction, true);
     }
 
     public void VisitIfStmt(IfStmt ifStmt)
