@@ -43,12 +43,34 @@ public class LoxFunction : ILoxCallable
         {
             environment.Define(_declaration.Parameters[i].Lexeme, arguments[i], true);
         }
-        interpreter.ExecuteBlock(_declaration.Body, environment);
+
+        try
+        {
+            interpreter.ExecuteBlock(_declaration.Body, environment);
+        }
+        catch (ReturnException re)
+        {
+            return re.Value;
+        }
         return null;
     }
 
     public int Arity()
     {
         return _declaration.Parameters.Count;
+    }
+}
+
+public class ReturnException : SystemException
+{
+    public object? Value { get; }
+
+    public ReturnException()
+    {
+    }
+
+    public ReturnException(object? value)
+    {
+        Value = value;
     }
 }

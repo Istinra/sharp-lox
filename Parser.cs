@@ -79,6 +79,8 @@ public class Parser
             return IfStatement();
         if (Match(TokenType.PRINT))
             return PrintStatement();
+        if (Match(TokenType.RETURN))
+            return ReturnStatement();
         if (Match(TokenType.WHILE))
             return WhileStatement();
         if (Match(TokenType.LEFT_BRACE))
@@ -139,6 +141,18 @@ public class Parser
         return new IfStmt(condition, thenBranch, elseBranch);
     }
 
+    private IStmt ReturnStatement()
+    {
+        Token keyword = Previous();
+        IExpr? expr = null;
+        if (!Check(TokenType.SEMICOLON))
+        {
+            expr = Expression();
+        }
+        Consume(TokenType.SEMICOLON, "Expect ';' after return value.");
+        return new ReturnStmt(keyword, expr);
+    }
+
     private IStmt PrintStatement()
     {
         IExpr expression = Expression();
@@ -159,6 +173,7 @@ public class Parser
         List<IStmt> stmts = new();
         while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
         {
+            //TODO [line 2] Error at '=': Expect expression.
             IStmt? declaration = Declaration();
             if (declaration != null)
                 stmts.Add(declaration);

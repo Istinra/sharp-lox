@@ -212,6 +212,15 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
         }
     }
 
+    public void VisitReturnStmt(ReturnStmt returnStmt)
+    {
+        if (returnStmt.Expression != null)
+        {
+            throw new ReturnException(Evaluate(returnStmt.Expression));
+        }
+        throw new ReturnException();
+    }
+
     public object VisitVariableExpr(VariableExpr variableExpr)
     {
         return _environment.Get(variableExpr.Name)!;

@@ -21,4 +21,5 @@ public interface IStmtVisitor
     void VisitFunctionStmt(FunctionStmt functionStmt);
     void VisitIfStmt(IfStmt ifStmt);
     void VisitWhileStmt(WhileStmt whileStmt);
+    void VisitReturnStmt(ReturnStmt returnStmt);
 }

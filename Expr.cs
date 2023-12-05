@@ -114,6 +114,14 @@ public record PrintStmt(IExpr Expression) : IStmt
      }
 }
 
+public record ReturnStmt(Token Keyword, IExpr? Expression) : IStmt
+{
+     public void Accept(IStmtVisitor visitor)
+     {
+          visitor.VisitReturnStmt(this);
+     }
+}
+
 public record VarStatement(Token Name, IExpr? Initializer) : IStmt
 {
      public void Accept(IStmtVisitor visitor)
