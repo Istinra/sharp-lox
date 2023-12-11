@@ -168,7 +168,7 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
 
     public void VisitIfStmt(IfStmt ifStmt)
     {
-        if (IsTruthy(ifStmt.Condition))
+        if (IsTruthy(Evaluate(ifStmt.Condition)))
         {
             Execute(ifStmt.ThenBranch);
         }

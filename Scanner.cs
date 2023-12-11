@@ -169,7 +169,7 @@ public class Scanner
 
     private bool Match(char expected)
     {
-        if (IsAtEnd() || _source[_current] != _current) return false;
+        if (IsAtEnd() || _source[_current] != expected) return false;
         _current++;
         return true;
     }
