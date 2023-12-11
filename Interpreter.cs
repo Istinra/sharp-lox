@@ -162,7 +162,7 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
 
     public void VisitFunctionStmt(FunctionStmt functionStmt)
     {
-        LoxFunction loxFunction = new LoxFunction(functionStmt);
+        LoxFunction loxFunction = new(functionStmt, _environment);
         _environment.Define(functionStmt.Name.Lexeme, loxFunction, true);
     }
 

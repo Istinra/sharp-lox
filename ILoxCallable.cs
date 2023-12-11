@@ -30,15 +30,17 @@ public class ClockCallable : ILoxCallable
 public class LoxFunction : ILoxCallable
 {
     private readonly FunctionStmt _declaration;
+    private readonly Environment _closure;
 
-    public LoxFunction(FunctionStmt declaration)
+    public LoxFunction(FunctionStmt declaration, Environment closure)
     {
-        this._declaration = declaration;
+        _declaration = declaration;
+        _closure = closure;
     }
 
     public object Call(Interpreter interpreter, List<object> arguments)
     {
-        Environment environment = new Environment(interpreter.Globals);
+        Environment environment = new Environment(_closure);
         for (var i = 0; i < _declaration.Parameters.Count; i++)
         {
             environment.Define(_declaration.Parameters[i].Lexeme, arguments[i], true);
