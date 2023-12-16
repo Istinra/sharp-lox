@@ -16,7 +16,7 @@ else
     Console.Write("> ");
     while (Console.ReadLine() is { } line)
     {
-        Lox.Lox.Run(line);
+        return Lox.Lox.Run(line);
     }
 }
 

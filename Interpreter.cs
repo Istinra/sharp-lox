@@ -2,13 +2,14 @@
 
 public class Interpreter : IExprVisitor<object>, IStmtVisitor
 {
-    public readonly Environment Globals = new Environment();
+    private readonly Environment _globals = new Environment();
+    private readonly Dictionary<IExpr, int?> _locals = new();
     private Environment _environment;
 
     public Interpreter()
     {
-        _environment = Globals;
-        Globals.Define("clock", new ClockCallable(), true);
+        _environment = _globals;
+        _globals.Define("clock", new ClockCallable(), true);
     }
 
     public void Interpret(List<IStmt> statements) { 
@@ -223,14 +224,34 @@ public class Interpreter : IExprVisitor<object>, IStmtVisitor
 
     public object VisitVariableExpr(VariableExpr variableExpr)
     {
-        return _environment.Get(variableExpr.Name)!;
+        return LookUpVariable(variableExpr.Name, variableExpr)!;
+    }
+    
+    private object? LookUpVariable(Token name, IExpr expr) {
+        if (_locals.TryGetValue(expr, out int? distance) && distance.HasValue) {
+            return _environment.GetAt(distance.Value, name.Lexeme);
+        } else {
+            return _globals.Get(name);
+        }
     }
 
     public object VisitAssignExpr(AssignExpr assignExpr)
     {
         object value = Evaluate(assignExpr.Value);
-        _environment.Assign(assignExpr.Name, value);
+        if (_locals.TryGetValue(assignExpr, out int? distance) && distance.HasValue)
+        {
+            _environment.AssignAt(distance.Value, assignExpr.Name, value);
+        }
+        else
+        {
+            _globals.Assign(assignExpr.Name, value);
+        }
         return value;
+    }
+
+    public void Resolve(IExpr expr, int depth)
+    {
+        _locals[expr] = depth;
     }
 }
 

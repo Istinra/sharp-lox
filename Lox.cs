@@ -15,14 +15,18 @@ public class Lox
         return _hadError ? 65 : 0;
     }
 
-    public static void Run(string source)
+    public static int Run(string source)
     {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.ScanTokens();
         Parser parser = new Parser(tokens);
         List<IStmt> stmts = parser.Parse();
+        new Resolver(Interpreter).Resolve(stmts);
+        if (_hadRuntimeError)
+            return 70;
         Interpreter.Interpret(stmts);
         _hadError = false;
+        return 0;
     }
 
     public static void Error(int line, string message)
